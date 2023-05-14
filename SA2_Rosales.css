@@ -1,0 +1,18 @@
+body{
+  background-color: #f5e6cd;
+  
+}
+.main{
+  
+  color: #778979;
+}
+.coat {
+					  text-align: center;
+					  border: 10px solid #778979;
+					  border-style: double;
+					 /* background-color: pink; */
+				}
+.center {
+					  margin-left:100px;
+					  margin-right:100px;
+				}				

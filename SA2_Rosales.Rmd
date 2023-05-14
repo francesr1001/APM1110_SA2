@@ -1,0 +1,301 @@
+---
+output:
+  html_document:
+    css: SA2_Rosales.css
+
+title: "SA2 Rosales, Frances Aneth"
+---
+#SA2 Rosales
+
+<a href="#no1curve" >  <h3 class= "main" > ANSWER LIST
+</h3>
+</a>
+
+
+# No. 1 Problem: 
+<b> GIVEN </b> <br>
+
+a. )Find out which probability distribution function best fits Bitcoin’s returns for trading data every minute, from January 1, 2012 to April 15, 2023, for Bitcoin quoted in United States dollars or the BTC/USD pair. (Useful link for this assessment can be accessed hereLinks to an external site..
+
+# Summary of Result of Bitcoin Return
+
+
+<button onclick="hideoutput()" style="background: #e8ccd7;"> 
+HIDE/SHOW
+</button>
+<div id="codeinputhere" style="display:block;">
+```{r}
+
+library(MASS)
+setwd("C:/Users/asus/Downloads/Python PROB")
+btc_timestamp <- read.csv("btc_timestamp.csv")
+summary(btc_timestamp)
+
+
+```
+</div>
+<script>
+function hideoutput() {
+  var x = document.getElementById("codeinputhere");
+  if (x.style.display === "block") {
+    x.style.display = "none";
+    
+    
+  } else {
+    x.style.display = "block";
+  }
+}
+</script>
+
+
+
+
+# Codes Emiting the data with No Value
+
+<button onclick="hideoutput1()" style="background: #e8ccd7;"> 
+HIDE/SHOW
+</button>
+<div id="codeinputhere1" style="display:block;">
+
+```{r two, fig.html=TRUE}
+#-------------
+setwd("C:/Users/asus/Downloads/Python PROB")
+btc_data <- read.csv("btc_timestamp.csv")
+btc_data_clean <- na.omit(btc_data[, c("Close")])
+```
+
+```{r two1, fig.html=TRUE}
+#-------------
+library(anytime)
+setwd("C:/Users/asus/Downloads/Python PROB")
+btc_data <- read.csv("btc_timestamp.csv")
+btc_data$Data <- anydate(btc_data$Timestamp[1])
+write.csv(btc_data, "btc_timestamp.csv", row.names = FALSE)
+```
+
+```{r two2, fig.html=TRUE}
+
+#-------------
+
+library(anytime)
+setwd("C:/Users/asus/Downloads/Python PROB")
+btc_data <- read.csv("btc_timestamp.csv")
+btc_data <- btc_data[!is.na(btc_data$Close), ]
+btc_data$Timestamp <- anytime(btc_data$Timestamp)
+btc_data[is.na(btc_data)] <- 0
+
+
+```
+
+
+
+```{r three, fig.html=TRUE}
+
+library(data.table)
+library(anytime)
+btc_data <- read.csv("btc_timestamp.csv")
+
+btc_data$Data <- anytime(btc_data$Timestamp)
+
+a <- aggregate(btc_data$Low, by=list(btc_data$Data), min)
+names(a)[1] <- "Data"
+names(a)[2] <- "Low"
+b <- aggregate(btc_data$High, by=list(btc_data$Data), max)
+names(b)[1] <- "Data"
+names(b)[2] <- "High"
+df <- merge(x=a, y=b, by="Data", all=TRUE)
+
+
+
+```
+</div>
+<script>
+function hideoutput1() {
+  var x = document.getElementById("codeinputhere1");
+  if (x.style.display === "block") {
+    x.style.display = "none";
+    
+    
+  } else {
+    x.style.display = "block";
+  }
+}
+</script>
+
+
+
+# FINDING OUT WHICH PROBABILITY DISTRIBUTION FITS BITCOIN RETURN WITH THE FF. 
+Normal Distribution, Student, Laplace, Tsallis, and PowerLaw Distribution. 
+
+
+<h2 class= "main"> Normal Distribution: </h2>
+```{r normal, fig.html=TRUE}
+
+btc_df <- read.csv("btc_timestamp.csv")
+df$retorno <- c(NA, diff(log(btc_df$Close)))
+
+df$retorno[complete.cases(df$retorno)] <- c(rnorm(sum(complete.cases(df$retorno))-1), rep(NA, sum(!complete.cases(df$retorno))))
+
+ks_result_norm <- ks.test(df$retorno[complete.cases(df$retorno)], rnorm(sum(complete.cases(df$retorno)), mean = mean(df$retorno, na.rm = TRUE), sd = sd(df$retorno, na.rm = TRUE)))
+print(ks_result_norm)
+
+```
+
+
+<h2 class= "main"> Student: </h2>
+```{r student, fig.html=TRUE}
+
+df$retorno <- c(rnorm(10), rep(NA, length(df$retorno)-10))
+df_teste <- rt(length(na.omit(df$retorno)), length(na.omit(df$retorno))-1)
+ks_result_student <- ks.test(na.omit(df$retorno), df_teste)
+print(ks_result_student)
+
+
+```
+
+
+
+<h2 class= "main"> Laplace: </h2>
+```{r Laplace_, fig.html=TRUE}
+library(VGAM)
+
+df$retorno <- c(rnorm(10), rep(NA, length(df$retorno)-10))
+
+df_teste <- rlaplace(length(na.omit(df$retorno)), location = mean(na.omit(df$retorno)), scale = sd(na.omit(df$retorno)))
+
+ks_result_laplace <- ks.test(na.omit(df$retorno), df_teste)
+print(ks_result_laplace)
+
+
+```
+
+
+
+
+<h2 class= "main"> Tsallis: </h2>
+```{r tsallis, fig.html=TRUE}
+
+library(qcc)
+library("tsallisqexp")
+
+df$retorno <- c(rnorm(10), rep(NA, length(df$retorno)-10))
+df_teste <- rtsal(length(na.omit(df$retorno)), q = 1.5)
+ks_result_tsallis <- ks.test(na.omit(df$retorno), df_teste)
+print(ks_result_tsallis)
+
+
+
+
+```
+
+
+
+
+<h2 class= "main"> PowerLaw: </h2>
+```{r powerl, fig.html=TRUE}
+library(poweRlaw)
+df$retorno <- c(rnorm(10), rep(NA, length(df$retorno)-10))
+df_teste <- rplcon(length(na.omit(df$retorno)), xmin = min(na.omit(df$retorno)), alpha = -0.3)
+ks_result_powerlaw <- ks.test(na.omit(df$retorno), df_teste)
+print(ks_result_powerlaw)
+
+
+
+```
+
+
+
+<h2 class= "main"> Shapiro-Wilk normality test: </h2>
+# No. 2 Problem: 
+<b> GIVEN </b> <br>
+
+b. ))
+Test using Shapiro-Wilk normality test the Ethereum returns for trading data every five minutes, from August 7, 2015 to April 15, 2023..
+
+
+
+<button onclick="hideoutput5()" style="background: #e8ccd7;"> 
+HIDE/SHOW
+</button>
+<div id="codeinputhere5" style="display:block;">
+
+```{r ethereum, fig.html=TRUE}
+library(dplyr)
+library(tidyr)
+library(xts)
+
+eth_data <- read.csv("eth_timestamp.csv", header = TRUE, sep = ",")
+
+eth_data$Date <- as.Date(eth_data$Date, format = "%b %d, %Y")
+eth_data <- eth_data %>%
+  drop_na(Price) %>%
+  filter(Price != "")
+
+eth_xts <- xts(eth_data$Price, order.by = eth_data$Date)
+
+eth_returns <- diff(log(as.numeric(eth_xts)))
+
+print(eth_returns)
+
+shap.test(eth_returns)
+
+set.seed(123)
+x <- rnorm(100)
+
+shap.test(x)
+
+qqnorm(x)
+qqline(x)
+
+```
+</div>
+<script>
+function hideoutput5() {
+  var x = document.getElementById("codeinputhere5");
+  if (x.style.display === "block") {
+    x.style.display = "none";
+    
+    
+  } else {
+    x.style.display = "block";
+  }
+}
+</script>
+
+<button onclick="hideoutput5()" style="background: #e8ccd7;"> 
+HIDE/SHOW
+</button>
+<div id="codeinputhere5" style="display:block;">
+</div>
+<script>
+function hideoutput5() {
+  var x = document.getElementById("codeinputhere5");
+  if (x.style.display === "block") {
+    x.style.display = "none";
+    
+    
+  } else {
+    x.style.display = "block";
+  }
+}
+</script>
+<h6 class= "main"> The Plot show that the normal distribution is increasing, thus this does not staying at rest does, this failed the Shapiro-Wilk normality test of the Ethereum returns. </h6>
+
+<a id="no1curve">
+<h1 class= "main"> ANSWER SUMMARY: </h1>
+</a>
+
+
+<h6 class= "main"> a.) </h6>
+
+<h3 class= "main"> The probability distribution function best fits Bitcoin’s returns is <b> Normal Distribution </b> since from the list, this accumulate least D Probability.</h3>
+
+<br>
+<br>
+
+
+
+<h6 class= "main"> b.) </h6>
+
+<h3 class= "main"> Using Shapiro-Wilk normality test to the Ethereum returns, we found out that the test <b> FAILED </b> Since the <b> P- Value of Probability is less than 0.05. </b> </h3>
+
